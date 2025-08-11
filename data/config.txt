@@ -1,0 +1,6 @@
+# Configuration File
+app_name=FileReader
+version=1.0
+debug=false
+
+# Note: Sensitive configuration should be in separate files

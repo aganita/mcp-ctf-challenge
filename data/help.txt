@@ -1,0 +1,7 @@
+File Access Help
+================
+
+This system allows you to read certain files.
+Only files in the data/ directory should be accessible.
+
+Security Note: The system should prevent access to sensitive files.

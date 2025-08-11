@@ -18,12 +18,38 @@ os.chdir(src_dir)
 # Now import and run the main module
 if __name__ == "__main__":
     try:
+        # Import and run the main module's asyncio loop
         import main
-        print("MCP CTF Challenge Server started successfully!")
+        import asyncio
+        
+        # Create server instance
+        mcp_server = main.MCPCTFServer()
+        
+        # Run the stdio server
+        async def run_server():
+            try:
+                async with main.stdio_server() as (read_stream, write_stream):
+                    init_options = mcp_server.server.create_initialization_options()
+                    await mcp_server.server.run(
+                        read_stream,
+                        write_stream,
+                        init_options
+                    )
+            except Exception as e:
+                print(f"Error in MCP server: {e}", file=sys.stderr)
+                import traceback
+                traceback.print_exc(file=sys.stderr)
+                raise
+        
+        # Run the async event loop
+        asyncio.run(run_server())
+        
     except ImportError as e:
-        print(f"Import error: {e}")
-        print("Make sure you're running this from the project root directory.")
+        print(f"Import error: {e}", file=sys.stderr)
+        print("Make sure you're running this from the project root directory.", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"Error starting server: {e}")
+        print(f"Error starting server: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
         sys.exit(1)
