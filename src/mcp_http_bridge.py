@@ -108,7 +108,9 @@ class MCPHTTPBridge:
                     id=mcp_request.id
                 )
                 
-                return response.dict()
+                # Clean up the response - remove None fields
+                response_dict = response.dict(exclude_none=True)
+                return response_dict
                 
             except Exception as e:
                 logger.error(f"Error handling MCP request: {e}")
@@ -120,7 +122,7 @@ class MCPHTTPBridge:
                     },
                     id=mcp_request.id if 'mcp_request' in locals() else None
                 )
-                return error_response.dict()
+                return error_response.dict(exclude_none=True)
         
         @self.app.options("/mcp")
         async def mcp_options():

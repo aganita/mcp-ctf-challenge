@@ -6,40 +6,52 @@ This guide explains how to connect Claude Desktop to your MCP CTF server deploye
 
 - MCP CTF server deployed on Render
 - Claude Desktop application installed
+- Python 3 with aiohttp installed (`pip install aiohttp`)
 - Your Render service URL (e.g., `https://your-mcp-ctf-server.onrender.com`)
 
-## Configuration Steps
+## Important Note
 
-### 1. Locate Claude Desktop Configuration
+Claude Desktop currently only supports stdio transport (local commands), not direct HTTP connections. To connect to a remote MCP server, you need to use the provided proxy script.
+
+## Setup Steps
+
+### 1. Install the Proxy Script
+
+First, ensure you have the required dependencies:
+```bash
+pip install aiohttp
+```
+
+### 2. Locate Claude Desktop Configuration
 
 The configuration file is located at:
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 - **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
-### 2. Add Remote MCP Server Configuration
+### 3. Configure Claude Desktop
 
-Edit the `claude_desktop_config.json` file and add your remote server:
+Edit the `claude_desktop_config.json` file and add your remote server using the proxy:
 
 ```json
 {
   "mcpServers": {
     "ctf-remote": {
-      "transport": "http",
-      "url": "https://your-mcp-ctf-server.onrender.com/mcp",
-      "headers": {
-        "Content-Type": "application/json",
-        "User-Agent": "Claude-Desktop-MCP-Client"
-      },
-      "timeout": 30000
+      "command": "python3",
+      "args": [
+        "/path/to/mcp_http_proxy.py",
+        "https://your-mcp-ctf-server.onrender.com"
+      ]
     }
   }
 }
 ```
 
-Replace `your-mcp-ctf-server` with your actual Render service name.
+Replace:
+- `/path/to/mcp_http_proxy.py` with the full path to the proxy script
+- `your-mcp-ctf-server` with your actual Render service name
 
-### 3. Multiple Server Configuration
+### 4. Multiple Server Configuration
 
 If you want to keep both local and remote servers configured:
 
@@ -47,24 +59,22 @@ If you want to keep both local and remote servers configured:
 {
   "mcpServers": {
     "ctf-local": {
-      "command": "python",
+      "command": "python3",
       "args": ["/path/to/mcp-ctf-challenge/src/main.py"],
       "cwd": "/path/to/mcp-ctf-challenge/src"
     },
     "ctf-remote": {
-      "transport": "http",
-      "url": "https://your-mcp-ctf-server.onrender.com/mcp",
-      "headers": {
-        "Content-Type": "application/json",
-        "User-Agent": "Claude-Desktop-MCP-Client"
-      },
-      "timeout": 30000
+      "command": "python3",
+      "args": [
+        "/path/to/mcp_http_proxy.py",
+        "https://your-mcp-ctf-server.onrender.com"
+      ]
     }
   }
 }
 ```
 
-### 4. Restart Claude Desktop
+### 5. Restart Claude Desktop
 
 After saving the configuration:
 1. Completely quit Claude Desktop (not just close the window)
@@ -190,43 +200,27 @@ Once connected, you can use the CTF tools in Claude Desktop:
 - Monitor usage if hosting for multiple users
 - Consider authentication for production use
 
-## Advanced Configuration
+## Alternative: Direct Local Testing
 
-### Custom Headers
+If you're having issues with the remote connection, you can test the server locally:
 
-Add authentication or custom headers:
-
-```json
-{
-  "mcpServers": {
-    "ctf-remote": {
-      "transport": "http",
-      "url": "https://your-mcp-ctf-server.onrender.com/mcp",
-      "headers": {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer your-token-here",
-        "X-Custom-Header": "value"
-      }
-    }
-  }
-}
-```
-
-### Proxy Configuration
-
-If behind a corporate proxy:
-
-```json
-{
-  "mcpServers": {
-    "ctf-remote": {
-      "transport": "http",
-      "url": "https://your-mcp-ctf-server.onrender.com/mcp",
-      "proxy": "http://proxy.company.com:8080"
-    }
-  }
-}
-```
+1. Clone the repository
+2. Install dependencies: `pip install -r requirements.txt`
+3. Run locally with HTTP mode: `cd src && RENDER=true python3 main.py`
+4. Use the proxy with localhost:
+   ```json
+   {
+     "mcpServers": {
+       "ctf-test": {
+         "command": "python3",
+         "args": [
+           "/path/to/mcp_http_proxy.py",
+           "http://localhost:8000"
+         ]
+       }
+     }
+   }
+   ```
 
 ## Support
 

@@ -96,30 +96,30 @@ cd src && python main.py
 
 ### For Deployed Server
 
-The server now includes a full HTTP-to-MCP bridge for remote connections.
+The server includes a full HTTP-to-MCP bridge for remote connections. However, Claude Desktop currently only supports stdio transport, so you need to use the provided proxy script.
 
 See [REMOTE_SETUP.md](REMOTE_SETUP.md) for detailed instructions on:
-- Configuring Claude Desktop for remote connections
+- Setting up the HTTP proxy for remote connections
+- Configuring Claude Desktop
 - Testing the connection
 - Troubleshooting common issues
-- Advanced configuration options
 
-Quick configuration example:
+Quick configuration example using the proxy:
 ```json
 {
   "mcpServers": {
     "ctf-remote": {
-      "transport": "http",
-      "url": "https://your-app-name.onrender.com/mcp",
-      "headers": {
-        "Content-Type": "application/json",
-        "User-Agent": "Claude-Desktop-MCP-Client"
-      },
-      "timeout": 30000
+      "command": "python3",
+      "args": [
+        "/path/to/mcp_http_proxy.py",
+        "https://your-app-name.onrender.com"
+      ]
     }
   }
 }
 ```
+
+**Important:** You must have the `mcp_http_proxy.py` script and `aiohttp` installed locally to connect to remote servers.
 
 ## 🔒 Security Considerations
 
