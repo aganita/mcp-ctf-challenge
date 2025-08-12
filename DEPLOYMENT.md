@@ -96,21 +96,30 @@ cd src && python main.py
 
 ### For Deployed Server
 
-Add to Claude Desktop config:
+The server now includes a full HTTP-to-MCP bridge for remote connections.
+
+See [REMOTE_SETUP.md](REMOTE_SETUP.md) for detailed instructions on:
+- Configuring Claude Desktop for remote connections
+- Testing the connection
+- Troubleshooting common issues
+- Advanced configuration options
+
+Quick configuration example:
 ```json
 {
   "mcpServers": {
     "ctf-remote": {
+      "transport": "http",
       "url": "https://your-app-name.onrender.com/mcp",
       "headers": {
+        "Content-Type": "application/json",
         "User-Agent": "Claude-Desktop-MCP-Client"
-      }
+      },
+      "timeout": 30000
     }
   }
 }
 ```
-
-**Note:** The HTTP MCP transport is currently limited. For full functionality, use the stdio transport with local deployment.
 
 ## 🔒 Security Considerations
 

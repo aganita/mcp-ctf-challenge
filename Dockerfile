@@ -17,11 +17,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code
 COPY src/ ./src/
 
-# Create data directory for file challenges
-RUN mkdir -p data
+# Copy data files for challenges
+COPY data/ ./data/
 
 # Set Python path
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app:/app/src
 
 # Expose port for Render
 EXPOSE 8000
@@ -29,5 +29,8 @@ EXPOSE 8000
 # Set environment variable for Render
 ENV RENDER=true
 
+# Enable Python unbuffered output for better logging
+ENV PYTHONUNBUFFERED=1
+
 # Run the MCP server
-CMD ["python", "src/main.py"]
+CMD ["python", "-u", "src/main.py"]

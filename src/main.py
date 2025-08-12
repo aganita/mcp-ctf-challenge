@@ -23,6 +23,7 @@ from mcp.types import (
 try:
     from fastapi import FastAPI
     import uvicorn
+    from mcp_http_bridge import MCPHTTPBridge
     FASTAPI_AVAILABLE = True
 except ImportError:
     FASTAPI_AVAILABLE = False
@@ -106,28 +107,12 @@ if __name__ == "__main__":
     
     # Check if running on Render (needs HTTP server)
     if os.getenv("RENDER") and FASTAPI_AVAILABLE:
-        # Minimal HTTP server for Render deployment
-        app = FastAPI(title="MCP CTF Server", version="1.0.0")
+        # Use HTTP-to-MCP bridge for Render deployment
+        bridge = MCPHTTPBridge(mcp_server)
         
-        @app.get("/")
-        async def health_check():
-            return {"status": "MCP CTF Server running", "challenges": len(mcp_server.challenges)}
-        
-        @app.get("/challenges")
-        async def list_challenges():
-            return {
-                name: {
-                    "name": challenge.name,
-                    "description": challenge.description,
-                    "difficulty": challenge.difficulty,
-                    "tools": [tool.name for tool in challenge.get_tools()]
-                }
-                for name, challenge in mcp_server.challenges.items()
-            }
-        
-        # Run HTTP server
+        # Run HTTP server with MCP bridge
         port = int(os.getenv("PORT", 8000))
-        uvicorn.run(app, host="0.0.0.0", port=port)
+        uvicorn.run(bridge.app, host="0.0.0.0", port=port)
     else:
         # Local development - use stdio transport
         async def main():
